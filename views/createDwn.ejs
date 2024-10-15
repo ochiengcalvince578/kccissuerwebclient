@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create DID</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <h1>Create a Decentralized Identifier (DID)</h1>
+
+  <% if (error) { %>
+    <p style="color:red;"><%= error %></p>
+  <% } %>
+
+  <% if (!did) { %>
+    <!-- Initial form before DID creation -->
+    <form action="/createDwn" method="POST">
+      <button type="submit">Generate DID</button>
+    </form>
+  <% } else { %>
+    <!-- Display the DID after successful creation -->
+    <h2>Successfully created DWN!</h2>
+    <p>Your DID: <strong><%= did %></strong></p>
+  <% } %>
+</body>
+</html>
+
+

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Issue Kcc</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <h1>Issue Kcc</h1>
+
+  <% if (error) { %>
+    <p style="color:red;"><%= error %></p>
+  <% } %>
+
+  <% if (!kccIssuanceDate) { %>
+    <!-- Form to issue the KCC before issuance -->
+    <form action="/issueKcc" method="POST">
+      <button type="submit">Issue KCC</button>
+    </form>
+  <% } else { %>
+    <!-- Display the KCC after issuance -->
+    <h2>Successfully issued KCC!</h2>
+    <p>Issuance Date: <strong><%= kccIssuanceDate %></strong></p>
+    <p>Evidence Tyoe: <strong><%= kccEvidenceType %></strong></p>
+  <% } %>
+</body>
+</html>
