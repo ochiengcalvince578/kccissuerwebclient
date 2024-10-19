@@ -21,6 +21,10 @@
     <h2>Successfully issued KCC!</h2>
     <p>Issuance Date: <strong><%= kccIssuanceDate %></strong></p>
     <p>Evidence Tyoe: <strong><%= kccEvidenceType %></strong></p>
+
+    <form action="/storeVc" method="POST">
+      <button type="submit">Store Vc</button>
+    </form>
   <% } %>
 </body>
 </html>

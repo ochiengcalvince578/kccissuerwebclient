@@ -8,9 +8,64 @@ const { VerifiableCredential } = require ("@web5/credentials");
 const app = express();
 const port = 3000;
 
+const protocolDefinition = {
+  "protocol": "https://vc-to-dwn.tbddev.org/vc-protocol",
+  "published": true,
+  "types": {
+    "credential": {
+      "schema": "https://vc-to-dwn.tbddev.org/vc-protocol/schema/credential",
+      "dataFormats": [
+        "application/vc+jwt"
+      ]
+    },
+    "issuer": {
+      "schema": "https://vc-to-dwn.tbddev.org/vc-protocol/schema/issuer",
+      "dataFormats": [
+        "text/plain"
+      ]
+    },
+    "judge": {
+      "schema": "https://vc-to-dwn.tbddev.org/vc-protocol/schema/judge",
+      "dataFormats": [
+        "text/plain"
+      ]
+    }
+  },
+  "structure": {
+    "issuer": {
+      "$role": true
+    },
+    "judge": {
+      "$role": true
+    },
+    "credential": {
+      "$actions": [
+        {
+          "role": "issuer",
+          "can": [
+            "create"
+          ]
+        },
+        {
+          "role": "judge",
+          "can": [
+            "query",
+            "read"
+          ]
+        }
+      ]
+    }
+  }
+}
+
 let issuerDidUri = null;
 
+
 let customerDidUri = "did:dht:rr1w5z9hdjtt76e6zmqmyyxc5cfnwjype6prz45m6z1qsbm8yjao";
+
+let vc = null;
+
+let vcType = null;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -55,9 +110,23 @@ app.post('/createDwn', async (req, res) => {
       console.log(dwn, did);
 
       issuerDidUri = did;
+
+
+      const { protocol, status } = await web5.dwn.protocols.configure({
+        message: {
+          definition: protocolDefinition
+        }
+    });
+    
+    console.log("configured protocol", protocol)
+
+    console.log("status", status.detail);
+    //sends protocol to remote DWNs immediately (vs waiting for sync)
+    await protocol.send(issuerDidUri);
   
       // Render the createDwn EJS view with the appropriate variables
       res.render('createDwn', { dwn, did, error: null });
+      
     } catch (error) {
       console.error('Failed to create DWN:', error);
       res.render('createDwn', { dwn: null, did: null, error: 'Failed to create DWN. Please try again.' });
@@ -115,6 +184,19 @@ app.post('/issueKcc', async (req, res) => {
         ]
       });
 
+
+      //known_customer_credential.
+
+    
+      //vc = await known_customer_credential.sign(issuerDidUri)
+
+       //vcType = known_customer_credential.type;
+       
+       //console.log("vc", vc);
+       //console.log("vcType", vcType);
+
+       
+
       console.log(known_customer_credential.vcDataModel.evidence[0]);
     
       res.render('issueKcc',{kccIssuanceDate: known_customer_credential.vcDataModel.issuanceDate, kccEvidenceType: known_customer_credential.vcDataModel.evidence[0], error:null})
@@ -126,6 +208,46 @@ app.post('/issueKcc', async (req, res) => {
         res.render('error', { message: error.message });
     }
 });
+
+app.post('/contactAlice', async (req, res) => {
+  try {
+    const url = `https://vc-to-dwn.tbddev.org/authorize?issuerDid=${issuerDidUri}`;
+    
+    const response = await axios.get(url);
+    
+    console.log('Authorization Response:', response.data);
+    //res.render('authorizeDwn', { data: response.data });
+    
+} catch (error) {
+    console.error('Failed to authorize:', error);
+    //res.render('authorizeDwn', { error: 'Failed to authorize DWN. Please try again.' });
+}
+})
+
+app.post('/storeVc', async (req, res) => {
+  try {
+ 
+    const { record } = await web5.dwn.records.create({
+      data: vc,
+      message: {
+        schema: vcType,
+        dataFormat: 'application/vc+jwt',
+      },
+    });
+    
+
+    console.log("success stored vc", record)
+    // (optional) immediately send record to users remote DWNs
+    const { status } = await record.send(customerDidUri);
+
+    console.log("success sent vc", status);
+
+  } catch (error) {
+
+    console.error('Failed to store Vc:', error);
+    
+  }
+})
 
 // Start the server
 app.listen(port, () => {

@@ -20,6 +20,11 @@
     <!-- Display the DID after successful creation -->
     <h2>Successfully created DWN!</h2>
     <p>Your DID: <strong><%= did %></strong></p>
+
+    <form action="/contactAlice" method="POST">
+      <button type="submit">Contact Alice</button>
+    </form>
+    
   <% } %>
 </body>
 </html>
