@@ -1,30 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Issue Kcc</title>
+  <meta charset="UTF-8">
+  <title>Issue KCC</title>
   <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+
 </head>
+
+
+
 <body>
-  <h1>Issue Kcc</h1>
+  <div class="container">
+    <h1>Issue KCC</h1>
 
-  <% if (error) { %>
-    <p style="color:red;"><%= error %></p>
-  <% } %>
+    <% if (error) { %>
+      <p class="error-message"><%= error %></p>
+    <% } %>
 
-  <% if (!kccIssuanceDate) { %>
-    <!-- Form to issue the KCC before issuance -->
-    <form action="/issueKcc" method="POST">
-      <button type="submit">Issue KCC</button>
-    </form>
-  <% } else { %>
-    <!-- Display the KCC after issuance -->
-    <h2>Successfully issued KCC!</h2>
-    <p>Issuance Date: <strong><%= kccIssuanceDate %></strong></p>
-    <p>Evidence Tyoe: <strong><%= kccEvidenceType %></strong></p>
+    <% if (!kccIssuanceDate) { %>
+      <!-- Menu options before KCC issuance -->
+      <div class="menu">
+        <!-- Issue KCC -->
+        <a id="openModalButton" href="/issueKcc" class="menu-item">             
+            <div class="icon">&#128221;</div> <!-- Icon for issuing KCC -->
+            <span>Issue KCC</span>          
+        </a>
+        
+        <!-- Settings option -->
+        <a href="/manageCredentialTypes" class="menu-item">
+          <div class="icon">&#9881;</div> <!-- Icon for settings -->
+          <span>Manage Credential Types</span>
+        </a>
+      </div>
+    <% } else { %>
+      <!-- Message after KCC issuance -->
+      <p class="success-message">Successfully issued KCC!</p>
+      <p>Issuance Date: <strong><%= kccIssuanceDate %></strong></p>
+      <p>Evidence Type: <strong><%= kccEvidenceType %></strong></p>
 
-    <form action="/storeVc" method="POST">
-      <button type="submit">Store Vc</button>
-    </form>
-  <% } %>
+      <!-- Menu option to store VC -->
+      <form action="/storeVc" method="POST" class="menu-item">
+        <button type="submit" class="btn-primary">Store VC</button>
+      </form>
+    <% } %>
+  </div>
+
+    <!-- Modal for capturing KCC details -->
+    <div id="kccModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Enter KCC Details</h2>
+        <form id="kccForm" action="/issueKcc" method="POST">
+          <label for="subjectDidUri">Subject DID URI:</label>
+          <input type="text" id="subjectDidUri" required>
+
+          <label for="countryOfResidence">Country of Residence:</label>
+          <input type="text" id="countryOfResidence" required>
+
+          <label for="jurisdiction">Jurisdiction:</label>
+          <input type="text" id="jurisdiction" required>
+
+          <label for="tier">Tier:</label>
+          <input type="text" id="tier" required>
+
+          <button type="submit" class="btn-primary">Create KCC</button>
+        </form>
+      </div>
+    </div>
+    
+
+    <script>
+      // Modal control
+      const modal = document.getElementById('kccModal');
+      const openModalButton = document.getElementById('openModalButton');
+      const closeButton = document.querySelector('.close-button');
+  
+      
+      openModalButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  modal.style.display = 'block';
+});
+
+
+      closeButton.addEventListener('click', () => modal.style.display = 'none');
+      window.addEventListener('click', event => {
+        if (event.target === modal) modal.style.display = 'none';
+      });
+  
+      // Kcc class definition
+      class Kcc {
+        constructor(subjectDidUri, countryOfResidence, jurisdiction, tier) {
+          this.subjectDidUri = subjectDidUri;
+          this.countryOfResidence = countryOfResidence;
+          this.jurisdiction = jurisdiction;
+          this.tier = tier;
+        }
+      }
+  
+      // Handle form submission to create Kcc instance
+      document.getElementById('kccForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent page refresh
+  
+        // Get form values
+        const subjectDidUri = document.getElementById('subjectDidUri').value;
+        const countryOfResidence = document.getElementById('countryOfResidence').value;
+        const jurisdiction = document.getElementById('jurisdiction').value;
+        const tier = document.getElementById('tier').value;
+  
+        // Create Kcc instance
+        const newKcc = new Kcc(subjectDidUri, countryOfResidence, jurisdiction, tier);
+        console.log('New KCC Created:', newKcc);
+  
+        // Close modal
+        modal.style.display = 'none';
+  
+        // Clear form fields (optional)
+        document.getElementById('kccForm').reset();
+      });
+    </script>
+
+    <script>
+      const countryInput = document.querySelector("#countryOfResidence");
+const jurisdictionInput = document.querySelector("#jurisdiction");
+
+const itiCountry = intlTelInput(countryInput, {
+  separateDialCode: true,
+  utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+  onlyCountries: [], // specify any particular countries if needed
+  initialCountry: "auto",
+});
+
+const itiJurisdiction = intlTelInput(jurisdictionInput, {
+  separateDialCode: true,
+  utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+});
+
+    </script>
+  
+  
 </body>
 </html>
+
