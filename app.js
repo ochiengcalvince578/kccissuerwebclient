@@ -8,6 +8,11 @@ const { VerifiableCredential } = require ("@web5/credentials");
 const app = express();
 const port = 3000;
 
+app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+
 const protocolDefinition = {
   "protocol": "https://vc-to-dwn.tbddev.org/vc-protocol",
   "published": true,
@@ -59,17 +64,11 @@ const protocolDefinition = {
 }
 
 let issuerDidUri = null;
-
-
 let customerDidUri = "did:dht:rr1w5z9hdjtt76e6zmqmyyxc5cfnwjype6prz45m6z1qsbm8yjao";
-
 let vc = null;
-
 let vcType = null;
 
-app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+
 
 app.get('/', (req, res) => {
     res.render('index');
@@ -151,16 +150,18 @@ app.get('/issueKcc', (req, res) => {
   });
 
 app.post('/issueKcc', async (req, res) => {
-    
+ 
+  const { subjectDidUri, countryOfResidence, jurisdiction, tier } = req.body;
+
     try {
     
     const known_customer_credential = await VerifiableCredential.create({
         issuer: issuerDidUri, // Issuer's DID URI
-        subject: customerDidUri, // Customer's DID URI 
+        subject: subjectDidUri, // Customer's DID URI 
         expirationDate: '2026-05-19T08:02:04Z',
         data: {
-          countryOfResidence: "US", // 2 letter country code
-          tier: "Gold", // optional KYC tier
+          countryOfResidence: countryOfResidence, // 2 letter country code
+          tier: tier, // optional KYC tier
           jurisdiction: { 
             country: "US" // optional 2 letter country code where IDV was performed
           }
@@ -248,6 +249,46 @@ app.post('/storeVc', async (req, res) => {
     
   }
 })
+
+
+// Route to render the manage credential types page
+// app.get('/manageCredentialTypes', (req, res) => {
+//   const credentialTypes = []; // Replace with actual fetch logic
+//   res.render('manageCredentialTypes', { credentialTypes });
+// });
+
+// // Route to create a new credential type
+// app.post('/manageCredentialTypes/create', (req, res) => {
+//   const { type, expirationDate} = req.body;
+//   const newCredential = {
+//     type,
+//     issuer,
+//     subject,
+//     expirationDate,
+//     data: JSON.parse(data),  // assuming `data` is in JSON format
+//   };
+//   // Add logic to save `newCredential` object
+//   res.redirect('/manageCredentialTypes');
+// });
+
+// // Routes for editing and deleting would follow similar patterns
+
+
+// // Route to edit a credential type
+// app.post('/manageCredentialTypes/edit/:id', (req, res) => {
+//   const { id } = req.params;
+//   const { credentialName, credentialDescription } = req.body;
+//   // Add logic to update credential type
+//   res.redirect('/manageCredentialTypes');
+// });
+
+// // Route to delete a credential type
+// app.post('/manageCredentialTypes/delete/:id', (req, res) => {
+//   const { id } = req.params;
+//   // Add logic to delete credential type
+//   res.redirect('/manageCredentialTypes');
+// });
+
 
 // Start the server
 app.listen(port, () => {
