@@ -1,59 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Issue KCC</title>
-  <link rel="stylesheet" href="/css/styles.css">
-</head>
 
-<style>
-  .subject-list-container {
-    max-height: 300px;
-    overflow-y: auto;
-    background-color: #f5f5f5;
-    padding: 16px;
-    margin-top: 20px; /* Adds space above the table */
-  }
-
-  .subject-list-heading {
-    font-size: 1.5em;
-    font-weight: bold;
-    margin-top: 40px; /* Adds space between title and table heading */
-    color: #333;
-  }
-
-  .subject-list {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .subject-list th,
-  .subject-list td {
-    padding: 8px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-
-  .subject-list th {
-    background-color: #f2f2f2;
-  }
-
-  .subject-list tr:hover {
-    background-color: #e6e6e6;
-  }
-
-  .issue-btn {
-    background-color: #4CAF50;
-    color: white;
-    padding: 4px 8px;
-    border: none;
-    cursor: pointer;
-  }
-</style>
-
-<body>
   <div class="container">
-    <!-- <h1>Issue KCC</h1> -->
+    <h1>Issue KCC</h1>
 
     <% if (error) { %>
       <p class="error-message"><%= error %></p>
@@ -62,10 +9,10 @@
     <% if (!kccIssuanceDate) { %>
 
       <!-- Table heading -->
-      <div class="subject-list-heading">Available Subjects</div>
+      
 
       <div class="subject-list-container">
-        <table class="subject-list">
+        <table id="subjectTable" class="subject-list">
           <thead>
             <tr>
               <th>Subject Name</th>
@@ -138,6 +85,16 @@
       </form>
     <% } %>
   </div>
-</body>
-</html>
+
+  <script>
+    // Initialize DataTable
+    $(document).ready(function() {
+      $('#subjectTable').DataTable({
+        pageLength: 5, // Number of entries per page
+        ordering: true, // Enables sorting
+        search: true, // Enables searching
+        lengthChange: true // Allows changing number of rows displayed
+      });
+    });
+  </script>
 

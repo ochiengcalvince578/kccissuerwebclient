@@ -1,16 +1,25 @@
-const express = require('express')
+const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const { Web5 } = require('@web5/api');
 const { DidDht } = require('@web5/dids');
-const { VerifiableCredential } = require ("@web5/credentials");
+const expressLayouts = require('express-ejs-layouts'); // Corrected import here
+const { VerifiableCredential } = require("@web5/credentials");
 
 const app = express();
 const port = 3000;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+
+app.use(expressLayouts); // Register express-ejs-layouts middleware
+
+app.set('layout', 'layout'); // Specify the layout file
+
+app.use(express.static('public')); // Serve static files from the "public" directory
+
+
+
 
 
 const protocolDefinition = {
@@ -71,12 +80,13 @@ let vcType = null;
 
 
 app.get('/', (req, res) => {
-    res.render('index');
+
+    res.render('index', { header: 'Home' });
 });
 
 // Create DID Route
 app.get('/createDid', (req, res) => {
-    res.render('createDid');
+    res.render('createDid', { title: 'Create DID' });
 });
 
 app.post('/createDid', async (req, res) => {
@@ -92,7 +102,7 @@ app.post('/createDid', async (req, res) => {
 app.get('/createDwn', (req, res) => {
     
 
-    res.render('createDwn', { did: null, error: null });
+    res.render('createDwn', { did: null, error: null, title: 'Create DWN' });
 });
 
 app.post('/createDwn', async (req, res) => {
@@ -146,7 +156,7 @@ app.get('/manageDwns', (req, res) => {
 
 app.get('/issueKcc', (req, res) => {
     // Render the form before issuing a KCC
-    res.render('issueKcc', { kccIssuanceDate: null, kccEvidenceType: null, error: null });
+    res.render('issueKcc', { title: 'Issue Kcc', kccIssuanceDate: null, kccEvidenceType: null, error: null });
   });
 
 app.post('/issueKcc', async (req, res) => {

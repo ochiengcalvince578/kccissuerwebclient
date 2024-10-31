@@ -17,6 +17,7 @@
     "country-select-js": "^2.1.0",
     "ejs": "^3.1.10",
     "express": "^4.21.1",
+    "express-ejs-layouts": "^2.5.1",
     "i18n-iso-countries": "^7.12.0"
   }
 }
