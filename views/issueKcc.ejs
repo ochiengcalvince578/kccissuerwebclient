@@ -4,36 +4,128 @@
   <meta charset="UTF-8">
   <title>Issue KCC</title>
   <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
-
 </head>
 
+<style>
+  .subject-list-container {
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: #f5f5f5;
+    padding: 16px;
+    margin-top: 20px; /* Adds space above the table */
+  }
 
+  .subject-list-heading {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 40px; /* Adds space between title and table heading */
+    color: #333;
+  }
+
+  .subject-list {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .subject-list th,
+  .subject-list td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .subject-list th {
+    background-color: #f2f2f2;
+  }
+
+  .subject-list tr:hover {
+    background-color: #e6e6e6;
+  }
+
+  .issue-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 4px 8px;
+    border: none;
+    cursor: pointer;
+  }
+</style>
 
 <body>
   <div class="container">
-    <h1>Issue KCC</h1>
+    <!-- <h1>Issue KCC</h1> -->
 
     <% if (error) { %>
       <p class="error-message"><%= error %></p>
     <% } %>
 
     <% if (!kccIssuanceDate) { %>
-      <!-- Menu options before KCC issuance -->
-      <div class="menu">
-        <!-- Issue KCC -->
-        <a id="openModalButton" href="/issueKcc" class="menu-item">             
-            <div class="icon">&#128221;</div> <!-- Icon for issuing KCC -->
-            <span>Issue KCC</span>          
-        </a>
+
+      <!-- Table heading -->
+      <div class="subject-list-heading">Available Subjects</div>
+
+      <div class="subject-list-container">
+        <table class="subject-list">
+          <thead>
+            <tr>
+              <th>Subject Name</th>
+              <th>URI</th>
+              <th>Country of Residence</th>
+              <th>Jurisdiction</th>
+              <th>Tier</th>
+              <th>Action</th> <!-- Column for Issue KCC button -->
+            </tr>
+          </thead>
+          <tbody>
+            <%
+              const subjects = [
+                { subjectName: "Alice", subjectDidUri: "did:dht:rr1w5z9hdjtt76e6zmqmyyxc5cfnwjype6prz45m6z1qsbm8yjao", countryOfResidence: "US", jurisdiction: "US", tier: "Gold" },
+                { subjectName: "Bob", subjectDidUri: "did:dht:zz3g5k8thjtt87f3znqexxcy4cfmjzvpe7qs78b4z2yrdk9zjbo", countryOfResidence: "KE", jurisdiction: "Nairobi", tier: "Platinum" },
+                { subjectName: "Charlie", subjectDidUri: "did:dht:gg1b9x4vjtt12h8zmrpyyxq6cfhwjuqe8qrz67d4c5osdk2zkpo", countryOfResidence: "ZA", jurisdiction: "Gauteng", tier: "Silver" },
+                { subjectName: "David", subjectDidUri: "did:dht:kk2l5z6hjtt95e3zpumyxc9cfwnjswde8prv59e6d7yudk3ybo", countryOfResidence: "NG", jurisdiction: "Lagos", tier: "Platinum" },
+                { subjectName: "Eva", subjectDidUri: "did:dht:ll3m7f4vjtt34f6zwqmyyc7cfrwjtvqe4hrz45g3e2vdm8wao", countryOfResidence: "DE", jurisdiction: "BY", tier: "Bronze" },
+                { subjectName: "Frank", subjectDidUri: "did:dht:bb1x9g7njtt87f2zpmexyc5cfswjfvpe3qs23k9r1psbm4pao", countryOfResidence: "EG", jurisdiction: "Cairo", tier: "Gold" },
+                { subjectName: "Grace", subjectDidUri: "did:dht:pp3l8y9djtt53h7znlmyxcy9cfmwjxvqe9orz79j4tysbf2mbo", countryOfResidence: "GH", jurisdiction: "Accra", tier: "Silver" },
+                { subjectName: "Hank", subjectDidUri: "did:dht:tt6x9c5vjtt97k8znqxyc3cfujvsvpe4rz45g5c9ysdk8dbo", countryOfResidence: "BR", jurisdiction: "SP", tier: "Bronze" },
+                { subjectName: "Ivy", subjectDidUri: "did:dht:vv1b4k8fjtt12g7zplmyyxc7cfwwjsvqe2hrq65g2vydj7gao", countryOfResidence: "ZA", jurisdiction: "Cape Town", tier: "Gold" },
+                { subjectName: "John", subjectDidUri: "did:dht:mm9v5t7djtt35k9zqmyyc9cfhwjsvne5prw25c4u3odj9pbo", countryOfResidence: "TZ", jurisdiction: "Dar es Salaam", tier: "Silver" },
+                { subjectName: "Kara", subjectDidUri: "did:dht:rr2l3x4vjtt88j6zpomyxc2cfwjhvuqe4prv68f5yosdk2wao", countryOfResidence: "UG", jurisdiction: "Kampala", tier: "Platinum" }
+              ];
+          
+              subjects.forEach(subject => {
+            %>
+              <tr>
+                <td><%= subject.subjectName %></td>
+                <td><%= subject.subjectDidUri %></td>
+                <td><%= subject.countryOfResidence %></td>
+                <td><%= subject.jurisdiction %></td>
+                <td><%= subject.tier %></td>
+                <td>
+                  <!-- Form to issue KCC for each subject -->
+                  <form action="/issueKcc" method="POST" style="display:inline;">
+                    <input type="hidden" name="subjectName" value="<%= subject.subjectName %>">
+                    <input type="hidden" name="subjectDidUri" value="<%= subject.subjectDidUri %>">
+                    <input type="hidden" name="countryOfResidence" value="<%= subject.countryOfResidence %>">
+                    <input type="hidden" name="jurisdiction" value="<%= subject.jurisdiction %>">
+                    <input type="hidden" name="tier" value="<%= subject.tier %>">
+                    <button type="submit" class="issue-btn">Issue KCC</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
         
-        <!-- Settings option -->
+      </div>
+
+      <!-- Other menu options -->
+      <!-- <div class="menu">
         <a href="/manageCredentialTypes" class="menu-item">
-          <div class="icon">&#9881;</div> <!-- Icon for settings -->
+          <div class="icon">&#9881;</div>
           <span>Manage Credential Types</span>
         </a>
-      </div>
+      </div> -->
+
     <% } else { %>
       <!-- Message after KCC issuance -->
       <p class="success-message">Successfully issued KCC!</p>
@@ -46,100 +138,6 @@
       </form>
     <% } %>
   </div>
-
-    <!-- Modal for capturing KCC details -->
-    <div id="kccModal" class="modal">
-      <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>Enter KCC Details</h2>
-        <form id="kccForm" action="/issueKcc" method="POST">
-          <label for="subjectDidUri">Subject DID URI:</label>
-          <input type="text" id="subjectDidUri" required>
-
-          <label for="countryOfResidence">Country of Residence:</label>
-          <input type="text" id="countryOfResidence" required>
-
-          <label for="jurisdiction">Jurisdiction:</label>
-          <input type="text" id="jurisdiction" required>
-
-          <label for="tier">Tier:</label>
-          <input type="text" id="tier" required>
-
-          <button type="submit" class="btn-primary">Create KCC</button>
-        </form>
-      </div>
-    </div>
-    
-
-    <script>
-      // Modal control
-      const modal = document.getElementById('kccModal');
-      const openModalButton = document.getElementById('openModalButton');
-      const closeButton = document.querySelector('.close-button');
-  
-      
-      openModalButton.addEventListener('click', (event) => {
-  event.preventDefault();
-  modal.style.display = 'block';
-});
-
-
-      closeButton.addEventListener('click', () => modal.style.display = 'none');
-      window.addEventListener('click', event => {
-        if (event.target === modal) modal.style.display = 'none';
-      });
-  
-      // Kcc class definition
-      class Kcc {
-        constructor(subjectDidUri, countryOfResidence, jurisdiction, tier) {
-          this.subjectDidUri = subjectDidUri;
-          this.countryOfResidence = countryOfResidence;
-          this.jurisdiction = jurisdiction;
-          this.tier = tier;
-        }
-      }
-  
-      // Handle form submission to create Kcc instance
-      document.getElementById('kccForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent page refresh
-  
-        // Get form values
-        const subjectDidUri = document.getElementById('subjectDidUri').value;
-        const countryOfResidence = document.getElementById('countryOfResidence').value;
-        const jurisdiction = document.getElementById('jurisdiction').value;
-        const tier = document.getElementById('tier').value;
-  
-        // Create Kcc instance
-        const newKcc = new Kcc(subjectDidUri, countryOfResidence, jurisdiction, tier);
-        console.log('New KCC Created:', newKcc);
-  
-        // Close modal
-        modal.style.display = 'none';
-  
-        // Clear form fields (optional)
-        document.getElementById('kccForm').reset();
-      });
-    </script>
-
-    <script>
-      const countryInput = document.querySelector("#countryOfResidence");
-const jurisdictionInput = document.querySelector("#jurisdiction");
-
-const itiCountry = intlTelInput(countryInput, {
-  separateDialCode: true,
-  utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
-  onlyCountries: [], // specify any particular countries if needed
-  initialCountry: "auto",
-});
-
-const itiJurisdiction = intlTelInput(jurisdictionInput, {
-  separateDialCode: true,
-  utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
-});
-
-    </script>
-  
-  
 </body>
 </html>
 

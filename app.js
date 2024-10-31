@@ -163,7 +163,7 @@ app.post('/issueKcc', async (req, res) => {
           countryOfResidence: countryOfResidence, // 2 letter country code
           tier: tier, // optional KYC tier
           jurisdiction: { 
-            country: "US" // optional 2 letter country code where IDV was performed
+            country: jurisdiction // optional 2 letter country code where IDV was performed
           }
         },
         credentialSchema: [
@@ -203,7 +203,7 @@ app.post('/issueKcc', async (req, res) => {
       res.render('issueKcc',{kccIssuanceDate: known_customer_credential.vcDataModel.issuanceDate, kccEvidenceType: known_customer_credential.vcDataModel.evidence[0], error:null})
     }
 
-    catch (e) {
+    catch (error) {
         console.error('Failed to issue Kcc:', error);
 
         res.render('error', { message: error.message });
@@ -240,13 +240,10 @@ app.post('/storeVc', async (req, res) => {
     console.log("success stored vc", record)
     // (optional) immediately send record to users remote DWNs
     const { status } = await record.send(customerDidUri);
-
     console.log("success sent vc", status);
 
   } catch (error) {
-
-    console.error('Failed to store Vc:', error);
-    
+    console.error('Failed to store Vc:', error);    
   }
 })
 
