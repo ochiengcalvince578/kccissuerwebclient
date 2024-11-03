@@ -8,8 +8,6 @@
 
     <% if (!kccIssuanceDate) { %>
 
-      <!-- Table heading -->
-      
 
       <div class="subject-list-container">
         <table id="subjectTable" class="subject-list">
@@ -20,7 +18,7 @@
               <th>Country of Residence</th>
               <th>Jurisdiction</th>
               <th>Tier</th>
-              <th>Action</th> <!-- Column for Issue KCC button -->
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -38,8 +36,8 @@
                 { subjectName: "John", subjectDidUri: "did:dht:mm9v5t7djtt35k9zqmyyc9cfhwjsvne5prw25c4u3odj9pbo", countryOfResidence: "TZ", jurisdiction: "Dar es Salaam", tier: "Silver" },
                 { subjectName: "Kara", subjectDidUri: "did:dht:rr2l3x4vjtt88j6zpomyxc2cfwjhvuqe4prv68f5yosdk2wao", countryOfResidence: "UG", jurisdiction: "Kampala", tier: "Platinum" }
               ];
-          
-              subjects.forEach(subject => {
+              
+              subjects.forEach((subject, index) => {
             %>
               <tr>
                 <td><%= subject.subjectName %></td>
@@ -48,53 +46,45 @@
                 <td><%= subject.jurisdiction %></td>
                 <td><%= subject.tier %></td>
                 <td>
-                  <!-- Form to issue KCC for each subject -->
                   <form action="/issueKcc" method="POST" style="display:inline;">
                     <input type="hidden" name="subjectName" value="<%= subject.subjectName %>">
                     <input type="hidden" name="subjectDidUri" value="<%= subject.subjectDidUri %>">
                     <input type="hidden" name="countryOfResidence" value="<%= subject.countryOfResidence %>">
                     <input type="hidden" name="jurisdiction" value="<%= subject.jurisdiction %>">
                     <input type="hidden" name="tier" value="<%= subject.tier %>">
-                    <button type="submit" class="issue-btn">Issue KCC</button>
+                    <button type="submit" class="issue-btn" <%= index === 0 ? '' : 'disabled' %>>Issue KCC</button>
                   </form>
                 </td>
               </tr>
             <% }); %>
           </tbody>
         </table>
-        
       </div>
-
-      <!-- Other menu options -->
-      <!-- <div class="menu">
-        <a href="/manageCredentialTypes" class="menu-item">
-          <div class="icon">&#9881;</div>
-          <span>Manage Credential Types</span>
-        </a>
-      </div> -->
+      
 
     <% } else { %>
-      <!-- Message after KCC issuance -->
-      <p class="success-message">Successfully issued KCC!</p>
-      <p>Issuance Date: <strong><%= kccIssuanceDate %></strong></p>
-      <p>Evidence Type: <strong><%= kccEvidenceType %></strong></p>
-
-      <!-- Menu option to store VC -->
-      <form action="/storeVc" method="POST" class="menu-item">
-        <button type="submit" class="btn-primary">Store VC</button>
-      </form>
+      
+      <div class="monitoring-panel">
+        <h2>Issuance Success Panel</h2>
+        <p><strong>Status:</strong> <span class="success-status">Successfully Issued</span></p>
+        <p><strong>Issuance Date:</strong> <%= kccIssuanceDate %></p>
+        <p><strong>KCC iD:</strong> <%= kccId %></p>
+        <p><strong>Authorization:</strong> <%= subjectAuthorization %></p>
+        <p><strong>Storage Status:</strong> <%= kccStorage %></p>
+      </div>
     <% } %>
   </div>
 
   <script>
-    // Initialize DataTable
+  
     $(document).ready(function() {
       $('#subjectTable').DataTable({
-        pageLength: 5, // Number of entries per page
-        ordering: true, // Enables sorting
-        search: true, // Enables searching
-        lengthChange: true // Allows changing number of rows displayed
+        pageLength: 5,
+        ordering: true,
+        search: true,
+        lengthChange: true
       });
     });
   </script>
+
 

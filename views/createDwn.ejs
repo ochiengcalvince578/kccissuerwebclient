@@ -1,34 +1,40 @@
   <div class="container">
-    <h1>Create DWN</h1>
+    <h1>Connect DWN</h1>
 
     <% if (error) { %>
       <p class="error-message"><%= error %></p>
     <% } %>
 
     <% if (!did) { %>
-      <!-- Menu items for DWN Creation Method -->
       <div class="menu">
-        <!-- Use Community DIF DWN -->
-        <form action="/createDwn" method="POST" class="menu-item">
-        
-            <div class="icon">&#128101;</div> <!-- Icon for issuing KCC -->
-            <span>Use Community DIF DWN</span>
-          
+       
+        <form id="createCommunityDidForm" action="/createDwn" method="POST">
+          <input type="hidden" name="useCommunityNode" value="true">
+          <button type="submit" class="menu-item">
+            <div class="icon">&#128187;</div>
+            <span>Community Node</span>
+          </button>
         </form>
         
-        <!-- Create Custom DWN -->
-        <a href="/createDwn?dwnOption=customDWN" class="menu-item">
-          <div class="icon">&#9881;</div> <!-- Icon representing Custom DWN -->
-          <span>Create Custom DWN</span>
-        </a>
-      </div>
-    <% } else { %>
-      <!-- Message after DID creation -->
-      <p class="success-message">Successfully created DWN!</p>
-      <p>Your DID: <strong><%= did %></strong></p>
+        <form id="createCustomDidForm" action="/createDwn" method="POST">
+          <input type="hidden" name="useCommunityNode" value="false">
+          <button type="submit" class="menu-item">
+            <div class="icon">&#128187;</div>
+            <span>Other Node</span>
+          </button>
+        </form>
       
-      <form action="/contactAlice" method="POST">
-        <button type="submit" class="btn-primary">Contact Alice</button>
-      </form>
+      
+      </div>
+    
+    <% } else { %>
+      <div class="monitoring-panel">
+      <p class="success-message">Successfully connected DWN!</p>
+      <p>Connected ID: <strong><%= did %></strong></p>
+      <p>Protocol Accepted: <strong><%= protocolConfigured %></strong></p>
+      </div>
     <% } %>
   </div>
+
+  
+  

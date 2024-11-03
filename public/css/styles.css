@@ -1,4 +1,4 @@
-/* Basic reset */
+
 * {
     margin: 0;
     padding: 0;
@@ -15,13 +15,13 @@ body {
 }
 
 .container {
-    padding-top: 60px; /* Adjust as needed */
+    padding-top: 60px;
     
     margin: 40px auto;
-    /* padding: 20px; */
-    /* background-color: #ffffff; */
+    
+    
     border-radius: 8px;
-    /* box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); */
+    
     text-align: center;
 }
 
@@ -57,6 +57,13 @@ h1 {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
+.menu-item.disabled {
+  pointer-events: none;
+  color: #aaa;           
+  opacity: 0.6;         
+  cursor: not-allowed; 
+}
+
 .icon {
     font-size: 36px;
     color: #0077cc;
@@ -68,7 +75,7 @@ h1 {
     color: #555;
 }
 
-/* Form Styling */
+
 .form-group {
     display: flex;
     flex-direction: column;
@@ -102,7 +109,7 @@ h1 {
     background-color: #45a049;
   }
   
-  /* Messages */
+  
   .success-message {
     color: green;
     font-weight: bold;
@@ -115,86 +122,6 @@ h1 {
     margin-top: 20px;
   }
 
-
-  /* Modal Background */
-.modal {
-  display: none; /* Hidden by default, shown via JavaScript */
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-}
-
-/* Modal Content Box */
-.modal-content {
-  background-color: #fefefe;
-  margin: 10% auto;
-  padding: 20px;
-  border-radius: 8px;
-  width: 50%;
-  max-width: 500px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Close Button */
-.close-btn {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close-btn:hover,
-.close-btn:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-/* Input Styling */
-.modal-content input[type="text"],
-.modal-content button[type="submit"] {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  display: block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 16px;
-}
-
-/* Label Styling */
-.modal-content label {
-  font-weight: bold;
-  margin-top: 10px;
-  display: block;
-  color: #333;
-}
-
-/* Button Styling */
-.modal-content .btn-primary {
-  background-color: #4CAF50;
-  color: white;
-  padding: 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.modal-content .btn-primary:hover {
-  background-color: #45a049;
-}
-
-
- 
-  
-  /* User list styling */
   .user-list {
     display: flex;
     flex-wrap: wrap;
@@ -214,7 +141,7 @@ h1 {
     background-color: #dcdcdc;
   }
 
-   /* Styles for the navigation buttons */
+  
    .navigation-bar {
     display: flex;
     justify-content: center;
@@ -235,7 +162,7 @@ h1 {
   }
 
   .nav-button:hover {
-    color: #007bff; /* Highlight color on hover */
+    color: #007bff; 
   }
 
   .nav-button.center {
@@ -251,13 +178,13 @@ h1 {
     
     background-color: #f5f5f5;
     padding: 16px;
-    margin-top: 20px; /* Adds space above the table */
+    margin-top: 20px; 
   }
 
   .subject-list-heading {
     font-size: 1.5em;
     font-weight: bold;
-    margin-top: 40px; /* Adds space between title and table heading */
+    margin-top: 40px;
     color: #333;
   }
 
@@ -288,3 +215,97 @@ h1 {
     border: none;
     cursor: pointer;
   }
+
+  .connection-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .computers {
+    display: flex;
+    align-items: center;
+  }
+
+  .computer-icon {
+    font-size: 24px;
+  }
+
+  .connection-line {
+    width: 40px;
+    height: 4px;
+    background-color: red;
+    margin: 0 5px;
+    border-radius: 2px;
+    transition: background-color 0.3s ease;
+  }
+
+  .status-text {
+    font-size: 14px;
+    color: #333;
+  }
+
+  
+  .monitoring-panel {
+    background-color: #f4f7fc;
+    border: 2px solid #4caf50;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .monitoring-panel h2 {
+    color: #4caf50;
+    margin-top: 0;
+  }
+
+  .monitoring-panel p {
+    font-size: 1rem;
+    margin: 10px 0;
+    color: #333;
+  }
+
+  .monitoring-panel .success-status {
+    color: #4caf50;
+    font-weight: bold;
+  }
+
+  
+  .error-message {
+    color: #d9534f;
+    font-weight: bold;
+    margin-top: 15px;
+  }
+
+
+  .issue-btn {
+    background-color: #007bff;
+    color: white;
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    transition: background-color 0.3s; 
+  }
+  
+  .issue-btn:disabled {
+    background-color: #c0c0c0;
+    color: #7d7d7d;
+    cursor: not-allowed;
+    opacity: 0.6; 
+  }
+  
+  .issue-btn:hover:not(:disabled) {
+    background-color: #0056b3; 
+  }
+  
+
+ 

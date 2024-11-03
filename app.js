@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const { Web5 } = require('@web5/api');
 const { DidDht } = require('@web5/dids');
-const expressLayouts = require('express-ejs-layouts'); // Corrected import here
+const expressLayouts = require('express-ejs-layouts');
 const { VerifiableCredential } = require("@web5/credentials");
 
 const app = express();
@@ -12,11 +12,11 @@ const port = 3000;
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(expressLayouts); // Register express-ejs-layouts middleware
+app.use(expressLayouts);
 
-app.set('layout', 'layout'); // Specify the layout file
+app.set('layout', 'layout'); 
 
-app.use(express.static('public')); // Serve static files from the "public" directory
+app.use(express.static('public'));
 
 
 
@@ -73,9 +73,10 @@ const protocolDefinition = {
 }
 
 let issuerDidUri = null;
-let customerDidUri = "did:dht:rr1w5z9hdjtt76e6zmqmyyxc5cfnwjype6prz45m6z1qsbm8yjao";
-let vc = null;
-let vcType = null;
+let web5Instance = null;
+let subjectAuthorization = false;
+let kccStorage = false; 
+let protocolConfigured = false;
 
 
 
@@ -84,21 +85,6 @@ app.get('/', (req, res) => {
     res.render('index', { header: 'Home' });
 });
 
-// Create DID Route
-app.get('/createDid', (req, res) => {
-    res.render('createDid', { title: 'Create DID' });
-});
-
-app.post('/createDid', async (req, res) => {
-    // const web5 = new Web5();
-    // const { did } = await web5.did.create();
-    // const didHt = new DidDht();
-    // const did = await didHt.create({ publish: true });
-    const didDht = await DidDht.create({ publish: true });
-    res.render('createDid', { did : didDht.uri});
-});
-
-// Create DWN Route
 app.get('/createDwn', (req, res) => {
     
 
@@ -106,57 +92,53 @@ app.get('/createDwn', (req, res) => {
 });
 
 app.post('/createDwn', async (req, res) => {
-    try {
-      const { did, web5 } = await Web5.connect({
-        didCreateOptions: {
-          dwnEndpoints: ['https://dwn.gcda.xyz']
-        },
-      });
-      
-    
-      const dwn = web5.dwn;
+  try {
+    const useCommunityNode = req.body.useCommunityNode === 'true';
 
-      console.log(dwn, did);
-
-      issuerDidUri = did;
-
-
-      const { protocol, status } = await web5.dwn.protocols.configure({
-        message: {
-          definition: protocolDefinition
-        }
+    const { did, web5 } = await Web5.connect({
+      didCreateOptions: useCommunityNode
+        ? { dwnEndpoints: ['https://dwn.gcda.xyz'] }
+        : {}
     });
     
-    console.log("configured protocol", protocol)
+    const dwn = web5.dwn;
+    console.log(dwn, did);
 
-    console.log("status", status.detail);
-    //sends protocol to remote DWNs immediately (vs waiting for sync)
-    await protocol.send(issuerDidUri);
-  
-      // Render the createDwn EJS view with the appropriate variables
-      res.render('createDwn', { dwn, did, error: null });
-      
-    } catch (error) {
-      console.error('Failed to create DWN:', error);
-      res.render('createDwn', { dwn: null, did: null, error: 'Failed to create DWN. Please try again.' });
+    web5Instance = web5;
+    issuerDidUri = did;
+
+    const { protocol, status } = await web5.dwn.protocols.configure({
+      message: {
+        definition: protocolDefinition
+      }
+    });
+    
+    if (status.code = 202) {
+       protocolConfigured = true;
     }
-  });
   
-  
+    await protocol.send(issuerDidUri);
 
-// Manage DIDs Route
-app.get('/manageDids', (req, res) => {
-    res.render('manageDids');
+
+    res.render('createDwn', {protocolConfigured: protocolConfigured, dwn, did, error: null });
+    
+  } catch (error) {
+    console.error('Failed to create DWN:', error);
+    res.render('createDwn', { dwn: null, did: null, error: 'Failed to create DWN. Please try again.' });
+  }
 });
 
-// Manage DWNs Route
-app.get('/manageDwns', (req, res) => {
-    res.render('manageDwns');
+  
+
+app.get('/connectionStatus', (req, res) => {
+  const isConnected = !!web5Instance; // `true` if connected, `false` otherwise
+  res.json({ isConnected });
 });
+
 
 app.get('/issueKcc', (req, res) => {
-    // Render the form before issuing a KCC
-    res.render('issueKcc', { title: 'Issue Kcc', kccIssuanceDate: null, kccEvidenceType: null, error: null });
+ 
+    res.render('issueKcc', { subjectAuthorization: subjectAuthorization, kccStorage: kccStorage, title: 'Issue Kcc', kccIssuanceDate: null, kccId: null, error: null });
   });
 
 app.post('/issueKcc', async (req, res) => {
@@ -166,8 +148,8 @@ app.post('/issueKcc', async (req, res) => {
     try {
     
     const known_customer_credential = await VerifiableCredential.create({
-        issuer: issuerDidUri, // Issuer's DID URI
-        subject: subjectDidUri, // Customer's DID URI 
+        issuer: issuerDidUri, 
+        subject: subjectDidUri,
         expirationDate: '2026-05-19T08:02:04Z',
         data: {
           countryOfResidence: countryOfResidence, // 2 letter country code
@@ -195,22 +177,27 @@ app.post('/issueKcc', async (req, res) => {
         ]
       });
 
+    const authData = await authorizeContactAlice();
+    console.log('Authorization Data:', authData);
+   
+    if (authData.status = 200) {
+        
+        subjectAuthorization = true; 
+    }
 
-      //known_customer_credential.
+  
+    const storageResult = await storeVerifiableCredential(known_customer_credential);
 
+    if (storageResult.status = 200) {
+      
+      kccStorage = true;
     
-      //vc = await known_customer_credential.sign(issuerDidUri)
+    }
+    console.log('Storage Result:', storageResult);
 
-       //vcType = known_customer_credential.type;
-       
-       //console.log("vc", vc);
-       //console.log("vcType", vcType);
-
-       
-
-      console.log(known_customer_credential.vcDataModel.evidence[0]);
-    
-      res.render('issueKcc',{kccIssuanceDate: known_customer_credential.vcDataModel.issuanceDate, kccEvidenceType: known_customer_credential.vcDataModel.evidence[0], error:null})
+    res.render('issueKcc',{subjectAuthorization: subjectAuthorization, kccStorage: kccStorage, kccIssuanceDate: known_customer_credential.vcDataModel.issuanceDate, kccId: known_customer_credential.vcDataModel.id, error:null})
+      
+      
     }
 
     catch (error) {
@@ -220,84 +207,33 @@ app.post('/issueKcc', async (req, res) => {
     }
 });
 
-app.post('/contactAlice', async (req, res) => {
-  try {
-    const url = `https://vc-to-dwn.tbddev.org/authorize?issuerDid=${issuerDidUri}`;
-    
-    const response = await axios.get(url);
-    
-    console.log('Authorization Response:', response.data);
-    //res.render('authorizeDwn', { data: response.data });
-    
-} catch (error) {
-    console.error('Failed to authorize:', error);
-    //res.render('authorizeDwn', { error: 'Failed to authorize DWN. Please try again.' });
+
+async function authorizeContactAlice() {
+  const url = `https://vc-to-dwn.tbddev.org/authorize?issuerDid=${issuerDidUri}`;
+  const response = await axios.get(url);
+  console.log('Authorization Response:', response.data);
+  return response.data;
 }
-})
-
-app.post('/storeVc', async (req, res) => {
-  try {
- 
-    const { record } = await web5.dwn.records.create({
-      data: vc,
-      message: {
-        schema: vcType,
-        dataFormat: 'application/vc+jwt',
-      },
-    });
-    
-
-    console.log("success stored vc", record)
-    // (optional) immediately send record to users remote DWNs
-    const { status } = await record.send(customerDidUri);
-    console.log("success sent vc", status);
-
-  } catch (error) {
-    console.error('Failed to store Vc:', error);    
-  }
-})
 
 
-// Route to render the manage credential types page
-// app.get('/manageCredentialTypes', (req, res) => {
-//   const credentialTypes = []; // Replace with actual fetch logic
-//   res.render('manageCredentialTypes', { credentialTypes });
-// });
+async function storeVerifiableCredential(vc) {
+  const { record } = await web5Instance.dwn.records.create({
+    data: vc,
+    message: {
+      schema: "https://vc.schemas.host/kcc.schema.json",
+      dataFormat: 'application/vc+jwt',
+    },
+  });
+  console.log("Successfully stored VC", record);
 
-// // Route to create a new credential type
-// app.post('/manageCredentialTypes/create', (req, res) => {
-//   const { type, expirationDate} = req.body;
-//   const newCredential = {
-//     type,
-//     issuer,
-//     subject,
-//     expirationDate,
-//     data: JSON.parse(data),  // assuming `data` is in JSON format
-//   };
-//   // Add logic to save `newCredential` object
-//   res.redirect('/manageCredentialTypes');
-// });
+  
+  const status = await record.send(vc.subject); 
+  console.log("VC successfully sent", status);
 
-// // Routes for editing and deleting would follow similar patterns
+  return { record, status };
+}
 
 
-// // Route to edit a credential type
-// app.post('/manageCredentialTypes/edit/:id', (req, res) => {
-//   const { id } = req.params;
-//   const { credentialName, credentialDescription } = req.body;
-//   // Add logic to update credential type
-//   res.redirect('/manageCredentialTypes');
-// });
-
-// // Route to delete a credential type
-// app.post('/manageCredentialTypes/delete/:id', (req, res) => {
-//   const { id } = req.params;
-//   // Add logic to delete credential type
-//   res.redirect('/manageCredentialTypes');
-// });
-
-
-// Start the server
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });

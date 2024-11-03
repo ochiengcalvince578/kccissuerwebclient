@@ -11,27 +11,36 @@
 
 </head>
 <body>
+
+  <div id="connectionStatus" class="connection-indicator">
+    <div class="computers">
+      <span class="computer-icon">💻</span>
+      <div class="connection-line"></div>
+      <span class="computer-icon">💻</span>
+    </div>
+    <p class="status-text"></p>
+  </div>
+
   <div class="container">
-    <!-- Main content area where page-specific content will be injected -->
+    
    
     <%- body %>
   
 
-  <!-- Navigation bar at the bottom of each page -->
+
   <div class="navigation-bar">
-    <!-- Back Button -->
+    
     <div class="nav-button" onclick="goBack()" title="Go Back">
-      &#9664; <!-- Left Arrow Icon -->
+      &#9664; 
     </div>
 
-    <!-- Home Button (Centered) -->
+    
     <div class="nav-button center" onclick="goHome()" title="Home">
-      &#8962; <!-- Home Icon -->
+      &#8962;
     </div>
 
-    <!-- Forward Button -->
     <div class="nav-button" onclick="goForward()" title="Go Forward">
-      &#9654; <!-- Right Arrow Icon -->
+      &#9654; 
     </div>
   </div>
 
@@ -42,11 +51,68 @@
       window.history.back();
     }
     function goHome() {
-      window.location.href = '/'; // Adjust to your homepage URL
+      window.location.href = '/';
     }
     function goForward() {
       window.history.forward();
     }
   </script>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const connectionIndicator = document.getElementById("connectionStatus");
+    const connectionLine = connectionIndicator.querySelector(".connection-line");
+    const statusText = connectionIndicator.querySelector(".status-text");
+
+    let isConnected = false;
+
+    // Function to update connection status indicator
+    async function updateConnectionStatus() {
+      try {
+        const response = await fetch('/connectionStatus');
+        const data = await response.json();
+        isConnected = data.isConnected;
+
+        if (isConnected) {
+          connectionLine.style.backgroundColor = "green";
+          statusText.textContent = "Connected";
+        } else {
+          connectionLine.style.backgroundColor = "red";
+          statusText.textContent = "Disconnected";
+        }
+        
+        // Attempt to update the dynamically loaded Issue KCC link status
+        toggleIssueKccLink();
+      } catch (error) {
+        console.error("Error fetching connection status:", error);
+        connectionLine.style.backgroundColor = "red";
+        statusText.textContent = "Error";
+      }
+    }
+
+    // Function to toggle Issue Kcc link based on connection status
+    function toggleIssueKccLink() {
+      const issueKccLink = document.getElementById("issueKccLink");
+      if (issueKccLink) {
+        if (isConnected) {
+          issueKccLink.classList.remove("disabled");
+        } else {
+          issueKccLink.classList.add("disabled");
+        }
+      }
+    }
+
+ 
+    setInterval(updateConnectionStatus, 5000);
+    updateConnectionStatus();
+
+    // Observe container for dynamically added content (Issue KCC link)
+    const container = document.querySelector(".container");
+    const observer = new MutationObserver(toggleIssueKccLink);
+    observer.observe(container, { childList: true, subtree: true });
+  });
+</script>
+
 </body>
 </html>
