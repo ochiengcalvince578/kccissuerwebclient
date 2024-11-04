@@ -10,3 +10,7 @@
 * User initiates KCC issuance to Alice, KCC is generated.
 * Under the hood authorization is sought with Alice's DWN and generated kcc sent to Alice'S DWN
 * DWN issuance success!!
+
+## DWN Record ID of the KCC
+
+KCC iD: urn:uuid:2d4eb58c-49ad-44d1-a203-438957671465
